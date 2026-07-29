@@ -120,6 +120,7 @@
   .p3 { left: 16%; width: 20px; height: 26%; animation-duration: 3s;   animation-delay: .6s; }
   .p4 { right: 5%; width: 32px; height: 40%; animation-duration: 3.8s; animation-delay: .2s; }
   .p5 { right: 12%;width: 22px; height: 28%; animation-duration: 3.1s; animation-delay: .5s; }
+  .p6 { left: 24%; width: 30px; height: 24%; animation-duration: 3.6s; animation-delay: .4s; }
 
   /* 기포 */
   .bubble {
@@ -172,6 +173,13 @@
         <div class="plant p3"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#26824a"/></svg></div>
         <div class="plant p4"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#2f9e59"/></svg></div>
         <div class="plant p5"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#37b56a"/></svg></div>
+        <div class="plant p6">
+          <svg viewBox="0 0 30 100" preserveAspectRatio="none">
+            <path d="M15,100 Q9,62 15,18 Q21,62 15,100 Z" fill="#2e8b57"/>
+            <path d="M15,100 Q2,66 6,14 Q15,60 15,100 Z" fill="#3aa568"/>
+            <path d="M15,100 Q28,66 24,14 Q15,60 15,100 Z" fill="#256b46"/>
+          </svg>
+        </div>
 
         <div class="bubble b1"></div>
         <div class="bubble b2"></div>
@@ -304,12 +312,38 @@
         f.state = food ? 'toFood' : 'idle';
         f.speed = f.baseSpeed;
       }
+      if (f.state === 'jumping') {
+        f.jump.t += dt;
+        var jt = Math.min(f.jump.t / f.jump.duration, 1);
+        f.x = f.jump.startX + (f.jump.endX - f.jump.startX) * jt;
+        f.y = f.jump.startY - Math.sin(Math.PI * jt) * f.jump.height;
+        f.dir = f.jump.endX >= f.jump.startX ? 1 : -1;
+        if (jt >= 1) {
+          f.state = food ? 'toFood' : 'idle';
+          f.x = f.jump.endX;
+          f.y = f.jump.startY;
+          randomTarget(f, b);
+        }
+        f.el.style.transform = 'translate(' + f.x + 'px,' + f.y + 'px) scaleX(' + f.dir + ')';
+        return;
+      }
+
       if (f.state === 'toFood' && food) {
         f.tx = Math.min(Math.max(food.x - f.w / 2 + (idx - 1) * 22, 4), b.w - f.w - 4);
         f.ty = Math.min(Math.max(food.y - f.h / 2, 4), b.h * 0.78 - f.h);
       } else if (f.state === 'idle') {
         var dist0 = Math.hypot(f.tx - f.x, f.ty - f.y);
         if (dist0 < 6) randomTarget(f, b);
+
+        if (Math.random() < dt / 25) {
+          var jumpEndX = Math.min(Math.max(f.x + (Math.random() * 80 - 40), 4), b.w - f.w - 4);
+          var jumpHeight = Math.min(f.y - 4, b.h * 0.4);
+          if (jumpHeight > 12) {
+            f.state = 'jumping';
+            f.jump = { startX: f.x, startY: f.y, endX: jumpEndX, height: jumpHeight, t: 0, duration: 0.6 };
+            return;
+          }
+        }
       }
 
       var dx = f.tx - f.x, dy = f.ty - f.y;
