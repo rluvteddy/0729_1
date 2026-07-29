@@ -32,8 +32,48 @@
     height: 100%;
     border-radius: 12px;
     overflow: hidden;
-    background: linear-gradient(180deg, #a9e2f2 0%, #57b3d6 30%, #2482a8 65%, #0f5a76 100%);
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.35);
+    background: linear-gradient(180deg, #eaf6fb 0%, #dbeef5 100%);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.25);
+  }
+
+  .water {
+    position: absolute;
+    left: 0;
+    top: 10%;
+    width: 100%;
+    height: 90%;
+    overflow: hidden;
+    background: linear-gradient(180deg, #a9e2f2 0%, #57b3d6 25%, #2482a8 60%, #0f5a76 100%);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
+  }
+  .water::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0));
+  }
+
+  .zone-text {
+    position: absolute;
+    top: 4%;
+    left: 4%;
+    font-family: "Malgun Gothic", sans-serif;
+    font-weight: 700;
+    font-size: 80px;
+    line-height: 1;
+    color: #111;
+    transform-origin: top left;
+    animation: dotGrow 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 5;
+  }
+  @keyframes dotGrow {
+    0%   { transform: scale(0.01); }
+    50%  { transform: scale(1); }
+    100% { transform: scale(0.01); }
   }
 
   .glass-shine {
@@ -45,6 +85,7 @@
     background: linear-gradient(75deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 55%);
     transform: skewX(-12deg);
     pointer-events: none;
+    z-index: 6;
   }
 
   /* 모래 */
@@ -90,129 +131,206 @@
   }
   @keyframes rise {
     from { transform: translateY(0) translateX(0); opacity: .8; }
-    to   { transform: translateY(-320px) translateX(8px); opacity: 0; }
+    to   { transform: translateY(-280px) translateX(8px); opacity: 0; }
   }
   .b1 { left: 22%; width: 5px; height: 5px; animation-duration: 6s; animation-delay: 0s; }
   .b2 { left: 47%; width: 8px; height: 8px; animation-duration: 8s; animation-delay: 2s; }
   .b3 { left: 68%; width: 4px; height: 4px; animation-duration: 5s; animation-delay: 3.5s; }
   .b4 { left: 82%; width: 6px; height: 6px; animation-duration: 7s; animation-delay: 1s; }
 
-  /* 물고기 */
-  .fish-wrap {
+  /* 물고기 (JS로 위치 제어) */
+  .fish-el {
     position: absolute;
-    left: -14%;
-    animation-name: swim;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
+    left: 0;
+    top: 0;
+    cursor: pointer;
+    z-index: 3;
   }
-  @keyframes swim {
-    from { left: -14%; }
-    to   { left: 88%; }
-  }
-  .fish-bob {
-    animation-name: bob;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-  }
-  @keyframes bob {
-    from { transform: translateY(-6px); }
-    to   { transform: translateY(6px); }
-  }
-  .fish-flip {
-    animation-name: flip;
-    animation-timing-function: steps(1, end);
-    animation-iteration-count: infinite;
-  }
-  @keyframes flip {
-    0%   { transform: scaleX(1); }
-    50%  { transform: scaleX(-1); }
-    100% { transform: scaleX(1); }
-  }
-  .fish-flip svg { display: block; }
+  .fish-el svg { display: block; width: 100%; height: 100%; overflow: visible; }
 
-  .fish1 { top: 26%; }
-  .fish1 .fish-flip { width: 56px; height: 30px; color: #ff7a2e; }
-  .fish1 .fish-wrap { animation-duration: 8s; }
-  .fish1 .fish-flip { animation-duration: 16s; }
-  .fish1 .fish-bob  { animation-duration: 2.1s; }
-
-  .fish2 { top: 46%; }
-  .fish2 .fish-flip { width: 48px; height: 26px; color: #2f8fe0; }
-  .fish2 .fish-wrap { animation-duration: 11s; animation-delay: -3s; }
-  .fish2 .fish-flip { animation-duration: 22s; animation-delay: -6s; }
-  .fish2 .fish-bob  { animation-duration: 2.6s; }
-
-  .fish3 { top: 62%; }
-  .fish3 .fish-flip { width: 40px; height: 22px; color: #ffd23f; }
-  .fish3 .fish-wrap { animation-duration: 6.5s; animation-delay: -1s; }
-  .fish3 .fish-flip { animation-duration: 13s; animation-delay: -2s; }
-  .fish3 .fish-bob  { animation-duration: 1.8s; }
+  /* 먹이 */
+  .food {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #8a6a3c, #4d3a1f);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    transition: top 1.3s cubic-bezier(.3,.6,.7,1);
+    z-index: 4;
+  }
 </style>
 </head>
 <body>
 
   <div class="frame">
     <div class="tank">
+      <div class="water" id="water">
 
-      <div class="plant p1"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#2f9e59"/></svg></div>
-      <div class="plant p2"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#37b56a"/></svg></div>
-      <div class="plant p3"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#26824a"/></svg></div>
-      <div class="plant p4"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#2f9e59"/></svg></div>
-      <div class="plant p5"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#37b56a"/></svg></div>
+        <div class="plant p1"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#2f9e59"/></svg></div>
+        <div class="plant p2"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#37b56a"/></svg></div>
+        <div class="plant p3"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#26824a"/></svg></div>
+        <div class="plant p4"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#2f9e59"/></svg></div>
+        <div class="plant p5"><svg viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10,100 C-4,80 18,66 6,50 C-6,34 16,22 8,0 C20,20 22,36 12,52 C4,66 22,80 10,100 Z" fill="#37b56a"/></svg></div>
 
-      <div class="bubble b1"></div>
-      <div class="bubble b2"></div>
-      <div class="bubble b3"></div>
-      <div class="bubble b4"></div>
+        <div class="bubble b1"></div>
+        <div class="bubble b2"></div>
+        <div class="bubble b3"></div>
+        <div class="bubble b4"></div>
 
-      <!-- 물고기 1 -->
-      <div class="fish-wrap fish1">
-        <div class="fish-bob">
-          <div class="fish-flip">
-            <svg viewBox="0 0 64 32" fill="currentColor">
-              <path d="M4,16 L-14,4 L-9,16 L-14,28 Z" transform="translate(14,0)"/>
-              <path d="M6,16 C6,4 20,-2 38,1 C52,3 62,9 62,16 C62,23 52,29 38,31 C20,34 6,28 6,16 Z"/>
-              <circle cx="48" cy="12" r="2.6" fill="#1a1a1a"/>
-              <rect x="26" y="2" width="6" height="28" rx="3" fill="#ffffff" opacity="0.8"/>
-            </svg>
-          </div>
-        </div>
+        <div class="zone-text">멍</div>
+
+        <div class="sand"></div>
       </div>
-
-      <!-- 물고기 2 -->
-      <div class="fish-wrap fish2">
-        <div class="fish-bob">
-          <div class="fish-flip">
-            <svg viewBox="0 0 64 32" fill="currentColor">
-              <path d="M4,16 L-14,4 L-9,16 L-14,28 Z" transform="translate(14,0)"/>
-              <path d="M6,16 C6,4 20,-2 38,1 C52,3 62,9 62,16 C62,23 52,29 38,31 C20,34 6,28 6,16 Z"/>
-              <path d="M22,3 C26,-4 34,-4 36,2 C31,3 26,3 22,3 Z" fill="currentColor" opacity="0.9"/>
-              <circle cx="48" cy="12" r="2.6" fill="#0d1a22"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <!-- 물고기 3 -->
-      <div class="fish-wrap fish3">
-        <div class="fish-bob">
-          <div class="fish-flip">
-            <svg viewBox="0 0 64 32" fill="currentColor">
-              <path d="M4,16 L-14,4 L-9,16 L-14,28 Z" transform="translate(14,0)"/>
-              <path d="M6,16 C6,4 20,-2 38,1 C52,3 62,9 62,16 C62,23 52,29 38,31 C20,34 6,28 6,16 Z"/>
-              <circle cx="48" cy="12" r="2.4" fill="#5a4300"/>
-              <rect x="20" y="3" width="4" height="26" rx="2" fill="#ffffff" opacity="0.6"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <div class="sand"></div>
       <div class="glass-shine"></div>
     </div>
   </div>
+
+<script>
+(function () {
+  var water = document.getElementById('water');
+
+  var fishDefs = [
+    { color: '#ff7a2e', w: 56, h: 30, speed: 55, stripe: true },
+    { color: '#2f8fe0', w: 48, h: 26, speed: 46, stripe: false },
+    { color: '#ffd23f', w: 40, h: 22, speed: 62, stripe: true }
+  ];
+
+  function fishSVG(stripe) {
+    return '<svg viewBox="0 0 64 32" fill="currentColor" width="100%" height="100%">' +
+      '<path d="M18,16 L0,4 L5,16 L0,28 Z"/>' +
+      '<path d="M6,16 C6,4 20,-2 38,1 C52,3 62,9 62,16 C62,23 52,29 38,31 C20,34 6,28 6,16 Z"/>' +
+      '<circle cx="48" cy="12" r="2.6" fill="#1a1a1a"/>' +
+      (stripe ? '<rect x="26" y="2" width="6" height="28" rx="3" fill="#fff" opacity="0.75"/>' : '') +
+      '</svg>';
+  }
+
+  var fishes = fishDefs.map(function (def, i) {
+    var el = document.createElement('div');
+    el.className = 'fish-el';
+    el.style.width = def.w + 'px';
+    el.style.height = def.h + 'px';
+    el.style.color = def.color;
+    el.innerHTML = fishSVG(def.stripe);
+    water.appendChild(el);
+    return {
+      el: el, w: def.w, h: def.h,
+      baseSpeed: def.speed, speed: def.speed,
+      x: 20 + i * 70, y: 30 + i * 40,
+      tx: 20 + i * 70, ty: 30 + i * 40,
+      dir: 1, state: 'idle', stateUntil: 0,
+      bobPhase: Math.random() * Math.PI * 2
+    };
+  });
+
+  function bounds() {
+    var r = water.getBoundingClientRect();
+    return { w: r.width, h: r.height };
+  }
+
+  function randomTarget(f, b) {
+    var margin = 8;
+    f.tx = margin + Math.random() * Math.max(1, (b.w - f.w - margin * 2));
+    f.ty = margin + Math.random() * Math.max(1, (b.h * 0.72 - f.h));
+  }
+
+  fishes.forEach(function (f) { randomTarget(f, bounds()); });
+
+  var food = null;
+  var foodTimer = null;
+
+  function spawnFood(x, y) {
+    if (food) { food.el.remove(); }
+    if (foodTimer) { clearTimeout(foodTimer); }
+
+    var b = bounds();
+    var size = 7;
+    var fx = Math.min(Math.max(x - size / 2, 2), b.w - size - 2);
+    var floorY = b.h * 0.74;
+
+    var el = document.createElement('div');
+    el.className = 'food';
+    el.style.left = fx + 'px';
+    el.style.top = Math.min(Math.max(y, 0), floorY) + 'px';
+    water.appendChild(el);
+    requestAnimationFrame(function () {
+      el.style.top = floorY + 'px';
+    });
+
+    food = { el: el, x: fx + size / 2, y: floorY };
+
+    fishes.forEach(function (f) { if (f.state !== 'fleeing') f.state = 'toFood'; });
+
+    foodTimer = setTimeout(function () {
+      if (food) { food.el.remove(); food = null; }
+      fishes.forEach(function (f) { if (f.state === 'toFood') f.state = 'idle'; });
+    }, 10000);
+  }
+
+  function flee(f, fromX, fromY) {
+    var b = bounds();
+    var dx = f.x - fromX, dy = f.y - fromY;
+    var len = Math.hypot(dx, dy) || 1;
+    dx /= len; dy /= len;
+    f.tx = Math.min(Math.max(f.x + dx * 170, 4), b.w - f.w - 4);
+    f.ty = Math.min(Math.max(f.y + dy * 110, 4), b.h * 0.78 - f.h);
+    f.state = 'fleeing';
+    f.stateUntil = performance.now() + 1300;
+    f.speed = f.baseSpeed * 2.6;
+  }
+
+  water.addEventListener('click', function (e) {
+    var r = water.getBoundingClientRect();
+    var x = e.clientX - r.left;
+    var y = e.clientY - r.top;
+    var target = e.target.closest ? e.target.closest('.fish-el') : null;
+
+    if (target) {
+      var f = fishes.filter(function (f) { return f.el === target; })[0];
+      if (f) flee(f, x, y);
+      return;
+    }
+    spawnFood(x, y);
+  });
+
+  var last = performance.now();
+  function tick(now) {
+    var dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    var b = bounds();
+
+    fishes.forEach(function (f, idx) {
+      if (f.state === 'fleeing' && now > f.stateUntil) {
+        f.state = food ? 'toFood' : 'idle';
+        f.speed = f.baseSpeed;
+      }
+      if (f.state === 'toFood' && food) {
+        f.tx = Math.min(Math.max(food.x - f.w / 2 + (idx - 1) * 22, 4), b.w - f.w - 4);
+        f.ty = Math.min(Math.max(food.y - f.h / 2, 4), b.h * 0.78 - f.h);
+      } else if (f.state === 'idle') {
+        var dist0 = Math.hypot(f.tx - f.x, f.ty - f.y);
+        if (dist0 < 6) randomTarget(f, b);
+      }
+
+      var dx = f.tx - f.x, dy = f.ty - f.y;
+      var dist = Math.hypot(dx, dy);
+      if (dist > 1) {
+        var step = Math.min(f.speed * dt, dist);
+        f.x += (dx / dist) * step;
+        f.y += (dy / dist) * step;
+        if (Math.abs(dx) > 2) f.dir = dx > 0 ? 1 : -1;
+      }
+
+      f.bobPhase += dt * 2;
+      var bob = Math.sin(f.bobPhase) * 3;
+      f.el.style.transform = 'translate(' + f.x + 'px,' + (f.y + bob) + 'px) scaleX(' + f.dir + ')';
+    });
+
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
 
 </body>
 </html>
