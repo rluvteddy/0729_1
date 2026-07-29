@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>안녕하세요</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .text {
+      position: absolute;
+      font-size: 2rem;
+      white-space: nowrap;
+      offset-path: path("M 20 100 C 150 20, 250 180, 380 100 S 610 20, 740 100");
+      offset-rotate: 0deg;
+      animation: flow 6s linear infinite;
+    }
+
+    @keyframes flow {
+      from { offset-distance: 0%; }
+      to { offset-distance: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="text">안녕하세요</div>
+</body>
+</html>
